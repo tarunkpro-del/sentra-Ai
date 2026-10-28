@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Production build outputs
+dist/
+build/
+
+# Environment and sensitive files
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Playwright & Test artifacts
+screenshots/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+userdata.sh
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Scratch scripts
+scratch/

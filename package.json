@@ -1,0 +1,40 @@
+{
+  "name": "sentra",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "vite",
+    "dev:backend": "node --watch server/index.js",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.1004.0",
+    "@google/genai": "^2.12.0",
+    "@tailwindcss/vite": "^4.2.1",
+    "@vitejs/plugin-react": "^5.1.4",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "framer-motion": "^12.34.3",
+    "lucide-react": "^0.575.0",
+    "mammoth": "^1.11.0",
+    "ogl": "^1.0.11",
+    "openai": "^6.25.0",
+    "playwright": "^1.49.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.2.1",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/three": "^0.183.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1"
+  }
+}

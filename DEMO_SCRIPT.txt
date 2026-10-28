@@ -1,0 +1,298 @@
+================================================================================
+                    SENTRA — FULL DEMO VIDEO SCRIPT
+                    Voiceover + Screen Actions + Timing
+                    Total Runtime: ~3-4 minutes
+================================================================================
+
+
+SCENE 1 — THE PROBLEM (20 seconds)
+================================================================================
+
+SCREEN: Open https://neobustest.vercel.app/ in Chrome, full screen.
+
+ACTION: Let the page load. Slowly scroll down. Click on route selection
+dropdown — show it doesnt work. Click the search button — show error popup.
+
+VOICEOVER:
+
+"Imagine you are an investor or a product manager looking at this bus booking
+website. At first glance, it looks fine — clean layout, branding is there,
+the navigation works."
+
+"But what if I told you this site has critical bugs that would prevent a
+single ticket from being booked?"
+
+"The route selector doesnt load. The date picker is broken. And the moment
+you try to search for a bus, you hit an error."
+
+"These arent cosmetic issues — they are revenue-killing bugs. But heres the
+thing — a manual QA team would take hours to find all of this. What if we
+could do it in 3 minutes, with AI?"
+
+
+SCENE 2 — INTRODUCING SENTRA (15 seconds)
+================================================================================
+
+SCREEN: Open http://localhost:5173 — Sentra homepage.
+
+ACTION: Show the full homepage. Hover over the "6 Active Agents" badge.
+Point to the agent names listed on the homepage.
+
+VOICEOVER:
+
+"This is Sentra — an AI-powered website reliability engine."
+
+"Sentra deploys 6 specialized AI agents, each with a unique mission —
+Flow testing, Feature testing, UI/UX validation, Exploratory crawling,
+Functional verification, and Console error monitoring."
+
+"They all work in parallel, in separate browser tabs, just like a full
+QA team — but powered by AI."
+
+
+SCENE 3 — WHAT MAKES SENTRA DIFFERENT (10 seconds)
+================================================================================
+
+SCREEN: Still on Sentra homepage.
+
+VOICEOVER:
+
+"What makes Sentra different from traditional testing tools is that it
+doesnt need test scripts. No Selenium. No Cypress configs. No setup."
+
+"You just give it a URL, describe what to test in plain English, and
+optionally upload a PRD — a product requirements document — and Sentras
+AI figures out the rest."
+
+
+SCENE 4 — CONFIGURING THE TEST (20 seconds)
+================================================================================
+
+SCREEN: Click "Analyse" or navigate to the testing interface.
+
+ACTION:
+  1. Type https://neobustest.vercel.app/ in the URL field
+  2. In the Text field, type:
+     "Bus booking site. Test the full booking flow — route selection,
+      date picker, search, seat selection, and payment."
+  3. (Optional) Upload or paste a PRD document
+  4. Click Start Test
+
+VOICEOVER:
+
+"I will paste the URL of that bus booking site we just saw."
+
+"In the description, I will tell Sentra what to focus on — the booking
+flow, route selection, search, seat selection, and payment."
+
+"You can also upload a PRD if you have one — Sentra will use it as
+context for smarter, more targeted testing."
+
+(beat)
+
+"Now I will hit Start Test — and this is where the magic happens."
+
+
+SCENE 5 — LIVE AGENT EXECUTION (45-60 seconds, SPEED UP TO 3x)
+================================================================================
+
+SCREEN: Agents Panel opens. Show full dashboard with all 6 agent cards,
+risk score meter, and live issue feed.
+
+NOTE: Record this at normal speed, then speed up to 3x in editing.
+Real-time duration is about 2-3 minutes, shown as 45-60 seconds.
+
+VOICEOVER (narrate over the sped-up footage):
+
+"You are now watching all 6 AI agents work simultaneously. Let me walk
+you through what is happening."
+
+"Agent A — the Planner — just launched the browser and navigated to the
+site. It is doing reconnaissance — identifying the site type, extracting
+the page structure, figuring out which flows to test."
+
+(pause as Agent B activates)
+
+"Agent B — the Dispatcher — is now distributing tasks to all 6 testing
+agents based on what Agent A discovered."
+
+(pause as Agents C through H light up one by one)
+
+"Now all 6 testing agents are running in parallel."
+
+"Agent C — the Flow Agent — is walking through the main user journey.
+Search for a bus, browse results, select a seat, proceed to checkout."
+
+"Agent D — the Feature Agent — is testing specific features like seat
+selection, price calculations, and form validation."
+
+"Agent E — the UI/UX Agent — is checking layout consistency, images,
+banners, and responsive design."
+
+"Agent F — the Exploratory Agent — is crawling every link on the site,
+looking for 404 errors and broken pages."
+
+"Agent G — the Functional Agent — is verifying prices match between
+pages, descriptions are correct, and currency formatting is consistent."
+
+"Agent H — the Console Agent — is monitoring the browsers developer
+console for JavaScript errors, failed API calls, and network failures."
+
+(point to the risk score updating on screen)
+
+"Watch the Risk Score on the left — it is climbing in real-time as bugs
+are discovered. You can see the Live Issues feed categorizing them by
+severity — Critical, High, Medium."
+
+(point to agent cards showing Complete or Done with Issues)
+
+"Agents are finishing one by one. Some found issues, some passed cleanly.
+The entire test — 6 agents, dozens of actions — completed in under
+3 minutes."
+
+
+SCENE 6 — THE REPORT (15 seconds)
+================================================================================
+
+SCREEN: Click the "Report" tab at the top.
+
+ACTION: Point to the reliability score circle. Point to the stats bar.
+Point to the AI-generated summary.
+
+VOICEOVER:
+
+"Now lets look at the results. Sentra generates a full reliability report."
+
+"The Reliability Score is 35 out of 100 — thats a Critical Risk rating.
+This site is not production-ready."
+
+"All 6 agents completed their tasks. They performed a total of multiple
+actions across every page, with clear pass and fail counts."
+
+"The AI has written a natural language summary explaining exactly what
+it found — route selection is broken, error popups prevent any booking,
+and core features are completely non-functional."
+
+
+SCENE 7 — ISSUES BREAKDOWN (20 seconds)
+================================================================================
+
+SCREEN: Scroll down to the Issues section in the report.
+
+ACTION: Show the list of issues. Click on or highlight a specific
+critical issue to show its details.
+
+VOICEOVER:
+
+"Here is the detailed issues breakdown. Each bug is documented with:"
+
+"The severity — Critical, High, or Medium."
+
+"What was expected versus what actually happened."
+
+"The business impact — why this matters to the product and to revenue."
+
+"And the exact location — which page and which element is affected."
+
+(highlight a specific critical issue)
+
+"For example, this Critical issue — Route selection dropdown is
+non-functional — was found by Agent D on the homepage."
+
+"Expected behavior was a working dropdown with bus routes."
+
+"Actual behavior — completely unresponsive."
+
+"Business impact — no customer can book a single ticket."
+
+
+SCENE 8 — EVIDENCE SCREENSHOTS (15 seconds)
+================================================================================
+
+SCREEN: Scroll to the Evidence Screenshots section.
+
+ACTION: Show the grid of screenshots with agent labels underneath each.
+
+VOICEOVER:
+
+"Sentra doesnt just report bugs — it proves them."
+
+"Every bug comes with an evidence screenshot captured at the exact moment
+the agent detected the issue."
+
+"You can see which agent captured each screenshot and what bug it
+corresponds to."
+
+"This is the kind of evidence you need for developer handoffs, sprint
+planning, and stakeholder reviews."
+
+
+SCENE 9 — RECOMMENDATIONS AND STRENGTHS (15 seconds)
+================================================================================
+
+SCREEN: Scroll to the Strengths and Recommendations sections.
+
+VOICEOVER:
+
+"Sentra also identifies what is working well — in this case, the site
+loads successfully, the branding is clean, and the basic navigation
+layout is responsive."
+
+"And most importantly, it gives prioritized recommendations."
+
+"Fix the route selection first. Then the search functionality. Then the
+error handling. These are ranked by business impact, so your development
+team knows exactly where to start."
+
+
+SCENE 10 — CLOSING SHOT (10 seconds)
+================================================================================
+
+SCREEN: Zoom out to show the full Sentra dashboard with the report visible.
+Fade to Sentra logo.
+
+VOICEOVER:
+
+"In under 3 minutes, Sentra found every critical bug on this site — bugs
+that would have taken a manual QA team hours to discover."
+
+"No scripts. No configuration. Just a URL and plain English."
+
+"Sentra — AI-powered website reliability."
+
+"Deploy your agents. Detect every bug. Deliver with confidence."
+
+(fade to black / Sentra logo)
+
+
+================================================================================
+                         KEY METRICS TO HIGHLIGHT
+================================================================================
+
+  6 AI Agents        — "A full QA team, powered by AI"
+  Under 3 minutes    — "Faster than any human tester"
+  Parallel execution — "All agents work simultaneously"
+  Zero configuration — "No test scripts, no Selenium, no setup"
+  Evidence-based     — "Every bug comes with a screenshot"
+  Business impact    — "Each issue rated by revenue impact"
+  AI-generated report— "Natural language summary + recommendations"
+
+
+================================================================================
+                          PRODUCTION NOTES
+================================================================================
+
+  Test URL:        https://neobustest.vercel.app/
+  Sentra URL:      http://localhost:5173
+  Backend URL:     http://localhost:3001
+  Resolution:      1920x1080 or higher
+  Speed-up:        Scene 5 at 3x speed
+  Total length:    3-4 minutes
+
+  TIP: Record Scene 5 first (the live testing), since it takes the longest.
+       Then record the other scenes separately and edit together.
+
+  TIP: Make sure both servers are running before recording:
+       cd "sentra v-18" && npm run dev
+
+================================================================================

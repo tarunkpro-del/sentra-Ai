@@ -1,0 +1,11 @@
+{
+    "buildCommand": "npx vite build",
+    "outputDirectory": "dist",
+    "framework": "vite",
+    "rewrites": [
+        {
+            "source": "/api/(.*)",
+            "destination": "https://ec2-13-235-94-125.ap-south-1.compute.amazonaws.com:3001/api/$1"
+        }
+    ]
+}
