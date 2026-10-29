@@ -55,8 +55,6 @@ interface Report {
     duration: number;
     durationFormatted: string;
     reliabilityScore: number | null;
-    coveragePercent?: number;
-    testingConfidence?: string;
     riskLevel: string;
     siteType: string;
     siteName?: string;
@@ -64,14 +62,6 @@ interface Report {
     summary: string;
     strengths: string[];
     recommendations: string[];
-    scenarios?: {
-        total: number;
-        completed: number;
-        passed: number;
-        failed: number;
-        blocked: number;
-        notTested: number;
-    };
     execution: {
         totalTasks: number;
         tasksCompleted: number;
@@ -122,15 +112,8 @@ interface Report {
     coverageSummary?: {
         pagesVisited?: string[];
         pagesCount?: number;
-        coveragePercent?: number;
-        testingConfidence?: string;
         agentsCovered?: number;
         totalAgents?: number;
-        scenariosAttempted?: number;
-        scenariosPassed?: number;
-        scenariosFailed?: number;
-        scenariosBlocked?: number;
-        scenariosNotTested?: number;
         coverageNotes?: string;
         limitations?: string[];
     };
@@ -771,16 +754,6 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                         ? 'Calculated from verified actions and confirmed defects'
                                         : 'Not enough evidence to calculate score'}
                                 </p>
-                                {typeof report.reliabilityScore === 'number' && (
-                                    <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-center gap-2 text-[10px] font-bold">
-                                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                                            Coverage: {report.coveragePercent ?? report.coverageSummary?.coveragePercent ?? 85}%
-                                        </span>
-                                        <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
-                                            Confidence: {report.testingConfidence ?? report.coverageSummary?.testingConfidence ?? 'High'}
-                                        </span>
-                                    </div>
-                                )}
                             </motion.div>
 
                             {/* Executive Summary & Stat Tiles */}
@@ -799,9 +772,9 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                     </p>
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-gray-100">
-                                    <MiniStat label="Scenarios" value={`${report.scenarios?.completed ?? report.execution?.tasksCompleted ?? 6}/6`} />
+                                    <MiniStat label="Scenarios" value={`${report.execution?.tasksCompleted ?? 0}/${report.execution?.totalTasks ?? 6}`} />
                                     <MiniStat label="Actions" value={String(report.execution?.totalActions ?? 0)} />
-                                    <MiniStat label="Passed" value={String(report.scenarios?.passed ?? report.execution?.successfulActions ?? 0)} color="text-emerald-600" />
+                                    <MiniStat label="Passed" value={String(report.execution?.successfulActions ?? 0)} color="text-emerald-600" />
                                     <MiniStat label="Findings" value={String(report.issuesSummary?.total ?? report.issues.length)} color={(report.issuesSummary?.total ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600'} />
                                 </div>
                             </motion.div>
@@ -1130,11 +1103,9 @@ export default function ReportView({ events, report, sessionId }: Props) {
 
                                         // Robust finding association: check meta, filename match, URL match, or title match
                                         const matchedIssue = meta?.finding ||
-                                            report.issues?.find(iss => iss.screenshot === filename) ||
-                                            report.issues?.find(iss => iss.agentId === agentId && iss.page === pageUrl) ||
-                                            report.issues?.find(iss => caption.toLowerCase().includes((iss.title || '').slice(0, 15).toLowerCase()));
+                                            report.issues?.find(iss => iss.screenshot === filename);
 
-                                        const hasError = meta?.hasError === true || Boolean(matchedIssue) || /error|bug|broken|404|doubling|mismatch|fail|issue/i.test(caption);
+                                        const hasError = meta?.hasError === true || (meta?.hasError !== false && (Boolean(matchedIssue) || Boolean(meta?.finding) || /bug|error|doubling|mismatch|broken|404|fail|issue|defect/i.test(caption)));
                                         const finding = meta?.finding || (matchedIssue ? {
                                             findingId: matchedIssue.findingId,
                                             title: matchedIssue.title,
@@ -1185,9 +1156,13 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                                         <ZoomIn className="w-4 h-4" /> Full Size
                                                     </div>
                                                     {/* Error badge on image */}
-                                                    {hasError && (
+                                                    {hasError ? (
                                                         <div className="absolute top-2 left-2 flex items-center gap-1 bg-red-600/90 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
-                                                            <AlertTriangle className="w-2.5 h-2.5" /> Bug Found
+                                                            <AlertTriangle className="w-2.5 h-2.5" /> Error Detected
+                                                        </div>
+                                                    ) : (
+                                                        <div className="absolute top-2 left-2 flex items-center gap-1 bg-emerald-600/90 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wide">
+                                                            <CheckCircle className="w-2.5 h-2.5" /> No Errors
                                                         </div>
                                                     )}
                                                     {ts && (
@@ -1215,35 +1190,37 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                                     <p className="text-[11px] font-bold text-gray-800 capitalize leading-snug">{caption}</p>
 
                                                     {/* Error status line */}
-                                                    {hasError && finding ? (
-                                                        <div className={`mt-1 rounded-lg border p-2.5 ${sevColor(finding.severity)}`}>
+                                                    {hasError && (finding || meta?.errorStatus) ? (
+                                                        <div className={`mt-1 rounded-lg border p-2.5 ${sevColor(finding?.severity)}`}>
                                                             <div className="flex items-start gap-1.5 mb-1.5">
-                                                                <AlertTriangle className="w-3 h-3 shrink-0 mt-0.5" />
-                                                                <span className="text-[10px] font-black uppercase tracking-wide">{finding.severity}: {finding.title}</span>
+                                                                <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                                                                <span className="text-[10px] font-black uppercase tracking-wide">
+                                                                    {finding?.severity ? `${finding.severity}: ` : ''}{finding?.title || meta?.errorStatus || 'Defect Detected'}
+                                                                </span>
                                                             </div>
-                                                            {finding.expected && (
+                                                            {finding?.actual && (
+                                                                <p className="text-[10px] leading-snug mb-0.5">
+                                                                    <span className="font-bold">Error:</span> {finding.actual}
+                                                                </p>
+                                                            )}
+                                                            {finding?.expected && (
                                                                 <p className="text-[10px] leading-snug mb-0.5">
                                                                     <span className="font-bold">Expected:</span> {finding.expected}
                                                                 </p>
                                                             )}
-                                                            {finding.actual && (
-                                                                <p className="text-[10px] leading-snug mb-0.5">
-                                                                    <span className="font-bold">Actual:</span> {finding.actual}
-                                                                </p>
-                                                            )}
-                                                            {finding.description && finding.description !== finding.actual && (
+                                                            {finding?.description && finding.description !== finding.actual && (
                                                                 <p className="text-[10px] leading-snug text-opacity-80 mt-1 border-t border-current/20 pt-1">
                                                                     {finding.description}
                                                                 </p>
                                                             )}
-                                                            {finding.findingId && (
+                                                            {finding?.findingId && (
                                                                 <p className="text-[9px] font-mono opacity-60 mt-1">ID: {finding.findingId}</p>
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <div className="mt-1 flex items-center gap-1.5 text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 font-medium">
-                                                            <CheckCircle className="w-3 h-3 shrink-0" />
-                                                            No error detected at this checkpoint
+                                                        <div className="mt-1 flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-2.5 py-1.5 font-bold">
+                                                            <CheckCircle className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                                                            No Errors
                                                         </div>
                                                     )}
                                                 </div>

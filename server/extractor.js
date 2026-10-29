@@ -459,41 +459,31 @@ export async function extractPageState(page) {
                 }
             } catch { }
 
-            // ── Cart quantities: scoped strictly to cart containers ─────────
+            // ── NEW: Cart quantities (for quantity doubling bug) ──────────────
             const cartQuantities = (() => {
                 const quantities = [];
-                // Only inspect actual cart item containers to avoid product dimension false-positives
-                const cartItemEls = document.querySelectorAll(
-                    '[class*="cart-item"], [class*="cart_item"], [class*="cartItem"], [data-name="Active Items"], .sc-list-item, [class*="basket-item"], tr.cart-item, .cart-items > *'
-                );
-                if (cartItemEls.length > 0) {
-                    cartItemEls.forEach(item => {
-                        // Check select/dropdown quantity
-                        const select = item.querySelector('select[name*="quantity" i], select[name*="qty" i], select[id*="quantity" i]');
-                        if (select) {
-                            const val = parseInt(select.value);
-                            if (!isNaN(val) && val > 0) quantities.push(val);
-                            return;
-                        }
-                        // Check input quantity
-                        const inp = item.querySelector('input[name*="quantity" i], input[name*="qty" i], input[type="number"]');
-                        if (inp) {
-                            const val = parseInt(inp.value);
-                            if (!isNaN(val) && val > 0) quantities.push(val);
-                            return;
-                        }
-                        // Check explicit Qty text within the cart item only
-                        const m = (item.textContent || '').match(/\b(?:qty|quantity)\s*[:=]?\s*(\d+)\b/i);
-                        if (m) {
-                            const val = parseInt(m[1]);
-                            if (!isNaN(val) && val > 0) quantities.push(val);
-                        }
-                    });
-                } else {
-                    // Fallback: look for inputs named explicitly quantity or qty
-                    document.querySelectorAll('input[name*="quantity" i], input[name*="qty" i]').forEach(el => {
-                        const val = parseInt(el.value);
-                        if (!isNaN(val) && val > 0) quantities.push(val);
+                // Look for quantity inputs in cart
+                document.querySelectorAll('[class*="quantity"] input, [class*="qty"] input, input[name*="quantity" i], input[name*="qty" i], .cart-item input[type="number"]').forEach(el => {
+                    const val = parseInt(el.value);
+                    if (!isNaN(val) && val > 0) quantities.push(val);
+                });
+                // Look for quantity text like "×2", "Qty: 2", "x 2"
+                if (quantities.length === 0) {
+                    const text = document.body?.innerText || '';
+                    const qtyPatterns = text.match(/(?:×|x|qty[:\s]*|quantity[:\s]*)(\d+)/gi);
+                    if (qtyPatterns) {
+                        qtyPatterns.forEach(m => {
+                            const q = parseInt(m.replace(/[^\d]/g, ''));
+                            if (!isNaN(q) && q > 0 && q < 100) quantities.push(q);
+                        });
+                    }
+                }
+                // Look for quantity display elements
+                if (quantities.length === 0) {
+                    document.querySelectorAll('[class*="quantity"], [class*="qty"], [class*="count"]').forEach(el => {
+                        const text = el.textContent?.trim();
+                        const n = parseInt(text);
+                        if (!isNaN(n) && n > 0 && n < 100 && text.length < 5) quantities.push(n);
                     });
                 }
                 return quantities;

@@ -173,24 +173,14 @@ export default function App() {
         setRisk({ ...DEFAULT_RISK });
 
         try {
-            let res: Response;
-            try {
-                res = await fetch('/api/start-test', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: url.trim(), prdText, userInstructions }),
-                });
-            } catch (netErr: any) {
-                throw new Error(`Cannot reach backend at http://localhost:3001 (${netErr.message || 'Connection failed'}). Please verify the server is running.`);
-            }
-
+            const res = await fetch('/api/start-test', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url: url.trim(), prdText, userInstructions }),
+            });
             const text = await res.text();
-            let data: any = {};
-            try {
-                data = JSON.parse(text);
-            } catch {
-                throw new Error(text.slice(0, 150) || `Server returned an invalid response (${res.status} ${res.statusText}).`);
-            }
+            let data;
+            try { data = JSON.parse(text); } catch { throw new Error('Server returned an invalid response. Make sure the backend is running.'); }
             if (!res.ok) throw new Error(data.error || 'Failed to start test');
 
             setSessionId(data.sessionId);
