@@ -306,7 +306,7 @@ if (existsSync(distPath)) {
     });
 }
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
     console.log('');
     console.log(`🛡️  SENTRA — Autonomous AI QA Platform (Team ZYPHER)`);
     console.log(`   URL:      http://localhost:${PORT}`);

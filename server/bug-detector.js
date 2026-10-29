@@ -419,21 +419,23 @@ async function detectShopBug6(page, baseUrl, bugs, log) {
  */
 async function forceCloseNeobusModal(page, log) {
     try {
-        const skipBtn = page.locator('button:has-text("Skip for now"), button:text-is("✕")');
+        const skipBtn = page.locator('button:has-text("Skip for now"), button:text-is("✕"), button:has-text("Skip"), [aria-label*="close" i]');
         const count = await skipBtn.count().catch(() => 0);
         if (count > 0) {
             await skipBtn.first().click({ force: true }).catch(() => {});
             await sleep(350);
-            await skipBtn.first().click({ force: true }).catch(() => {});
-            await sleep(400);
+            if (await skipBtn.first().isVisible({ timeout: 500 }).catch(() => false)) {
+                await skipBtn.first().click({ force: true }).catch(() => {});
+                await sleep(400);
+            }
         }
     } catch { }
     if (log) log('[BugDet] Modal dismissal applied');
 }
 
 /**
- * Navigate neobustest.vercel.app to the bus results page.
- * Uses #from-input, #to-input, #date-input → #search-btn.
+ * Navigate bus test websites to the bus results page.
+ * Uses #from-input, #to-input, #date-input → #search-btn or dynamic fallbacks.
  * Returns true if bus results are visible.
  */
 async function navigateToNeobusResults(page, baseUrl, log) {
@@ -445,15 +447,18 @@ async function navigateToNeobusResults(page, baseUrl, log) {
     await forceCloseNeobusModal(page, log);
     await sleep(300);
 
-    // Step 1: Fill From and To using Playwright locator.fill()
+    // Step 1: Fill From and To using Playwright locator
     log('[BugDet] Filling From/To cities via Playwright locator...');
-    await page.locator('#from-input').fill('Chennai').catch(() => {});
-    await page.locator('#to-input').fill('Bangalore').catch(() => {});
+    const fromLocator = page.locator('#from-input, input[placeholder*="from" i], input[placeholder*="departure" i], input[name*="from" i]').first();
+    const toLocator = page.locator('#to-input, input[placeholder*="to" i], input[placeholder*="destination" i], input[name*="to" i]').first();
+    await fromLocator.fill('Chennai').catch(() => {});
+    await toLocator.fill('Bangalore').catch(() => {});
     await sleep(300);
 
     // Step 2: Open date picker and select date
     log('[BugDet] Setting date...');
-    await page.locator('#date-input').click({ force: true }).catch(() => {});
+    const dateLocator = page.locator('#date-input, input[placeholder*="date" i], input[type="date"], [aria-label*="date" i]').first();
+    await dateLocator.click({ force: true }).catch(() => {});
     await sleep(400);
     const dateBtn = page.locator('button:not([disabled])').filter({ hasText: /^[1-9]\d?$/ }).first();
     if (await dateBtn.isVisible({ timeout: 1500 }).catch(() => false)) {
@@ -463,10 +468,11 @@ async function navigateToNeobusResults(page, baseUrl, log) {
 
     // Step 3: Click Search button
     log('[BugDet] Clicking search...');
-    await page.locator('#search-btn').click({ force: true }).catch(() => {});
+    const searchBtn = page.locator('#search-btn, button:has-text("Search"), button:has-text("Find Buses"), button[type="submit"]').first();
+    await searchBtn.click({ force: true }).catch(() => {});
     await sleep(2500);
 
-    const busCount = await page.locator('button:has-text("Select Seats")').count().catch(() => 0);
+    const busCount = await page.locator('button:has-text("Select Seats"), button:has-text("View Seats")').count().catch(() => 0);
     log(`[BugDet] After search: ${busCount} bus results visible (URL: ${page.url()})`);
     return busCount > 0 || page.url().includes('/results');
 }
@@ -579,7 +585,7 @@ async function detectBusBug8And9(page, baseUrl, bugs, log, takeScreenshot = null
     log(`[BugDet] Seats before click: ${before}`);
 
     // Click Seat 1
-    const seat1 = page.locator('button:text-is("1")').first();
+    const seat1 = page.locator('button:text-is("1"), [data-seat="1"], button:has-text("1")').first();
     if (await seat1.isVisible({ timeout: 2000 }).catch(() => false)) {
         await seat1.click({ force: true }).catch(() => {});
         await sleep(1000);
@@ -600,8 +606,8 @@ async function detectBusBug8And9(page, baseUrl, bugs, log, takeScreenshot = null
             severity: 'critical',
             source: 'bug-detector',
             reproductionSteps: [
-                'Navigate to https://neobustest.vercel.app/ and search for bus routes',
-                'On results page, click "Select Seats" for VRL Travels',
+                `Navigate to ${baseUrl} and search for bus routes`,
+                'On results page, click "Select Seats" for a bus listing',
                 'Verify initially selected seats count is 0',
                 'Click exactly one available seat button (Seat 1)',
                 `Observe that ${delta} seats become selected simultaneously and total fare doubles to ₹${(detailPrice || 699) * delta}`
@@ -612,7 +618,7 @@ async function detectBusBug8And9(page, baseUrl, bugs, log, takeScreenshot = null
 
     // Now test Bug #10 (Confirmation Date Off by 1 Day):
     // Click "Continue to Payment"
-    const continueBtn = page.locator('button:has-text("Continue to Payment")').first();
+    const continueBtn = page.locator('button:has-text("Continue to Payment"), button:has-text("Proceed to Payment"), button:has-text("Continue")').first();
     if (await continueBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
         await continueBtn.click({ force: true }).catch(() => {});
         await sleep(1500);

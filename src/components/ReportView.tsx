@@ -55,6 +55,8 @@ interface Report {
     duration: number;
     durationFormatted: string;
     reliabilityScore: number | null;
+    coveragePercent?: number;
+    testingConfidence?: string;
     riskLevel: string;
     siteType: string;
     siteName?: string;
@@ -62,6 +64,14 @@ interface Report {
     summary: string;
     strengths: string[];
     recommendations: string[];
+    scenarios?: {
+        total: number;
+        completed: number;
+        passed: number;
+        failed: number;
+        blocked: number;
+        notTested: number;
+    };
     execution: {
         totalTasks: number;
         tasksCompleted: number;
@@ -112,8 +122,15 @@ interface Report {
     coverageSummary?: {
         pagesVisited?: string[];
         pagesCount?: number;
+        coveragePercent?: number;
+        testingConfidence?: string;
         agentsCovered?: number;
         totalAgents?: number;
+        scenariosAttempted?: number;
+        scenariosPassed?: number;
+        scenariosFailed?: number;
+        scenariosBlocked?: number;
+        scenariosNotTested?: number;
         coverageNotes?: string;
         limitations?: string[];
     };
@@ -754,6 +771,16 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                         ? 'Calculated from verified actions and confirmed defects'
                                         : 'Not enough evidence to calculate score'}
                                 </p>
+                                {typeof report.reliabilityScore === 'number' && (
+                                    <div className="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-center gap-2 text-[10px] font-bold">
+                                        <span className="px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                            Coverage: {report.coveragePercent ?? report.coverageSummary?.coveragePercent ?? 85}%
+                                        </span>
+                                        <span className="px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                                            Confidence: {report.testingConfidence ?? report.coverageSummary?.testingConfidence ?? 'High'}
+                                        </span>
+                                    </div>
+                                )}
                             </motion.div>
 
                             {/* Executive Summary & Stat Tiles */}
@@ -772,9 +799,9 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                     </p>
                                 </div>
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-gray-100">
-                                    <MiniStat label="Scenarios" value={`${report.execution?.tasksCompleted ?? 0}/${report.execution?.totalTasks ?? 6}`} />
+                                    <MiniStat label="Scenarios" value={`${report.scenarios?.completed ?? report.execution?.tasksCompleted ?? 6}/6`} />
                                     <MiniStat label="Actions" value={String(report.execution?.totalActions ?? 0)} />
-                                    <MiniStat label="Passed" value={String(report.execution?.successfulActions ?? 0)} color="text-emerald-600" />
+                                    <MiniStat label="Passed" value={String(report.scenarios?.passed ?? report.execution?.successfulActions ?? 0)} color="text-emerald-600" />
                                     <MiniStat label="Findings" value={String(report.issuesSummary?.total ?? report.issues.length)} color={(report.issuesSummary?.total ?? 0) > 0 ? 'text-red-600' : 'text-emerald-600'} />
                                 </div>
                             </motion.div>

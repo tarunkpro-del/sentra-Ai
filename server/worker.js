@@ -495,7 +495,9 @@ function detectWorkerBugs(ps, memory, log) {
     }
 
     // 5. Cart quantity doubling — expected 1 but got 2+
-    const onCartPage = /cart|checkout|bag|basket|order/i.test(ps.url + ' ' + ps.title + ' ' + ps.fullText.slice(0, 200));
+    const onCartPage = /(\/|^)(cart|checkout|basket|bag|viewcart)(\/|$|\?)/i.test(new URL(ps.url, 'http://localhost').pathname) ||
+        /^(shopping\s*cart|your\s*cart|cart|basket)$/i.test((ps.title || '').trim()) ||
+        /\/gp\/cart|\/cart\.html/i.test(ps.url);
     if (onCartPage && memory.added_to_cart) {
         const expectedQty = memory.expected_cart_quantity || 1;
         // Check quantities from extractor
