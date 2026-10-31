@@ -216,6 +216,7 @@ function getSeverityBadge(severity: string) {
 }
 
 export default function ReportView({ events, report, sessionId }: Props) {
+    const effectiveSessionId = sessionId || report?.sessionId;
     const logRef = useRef<HTMLDivElement>(null);
     const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
     const [expandedIssues, setExpandedIssues] = useState<Set<string>>(new Set());
@@ -468,8 +469,7 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                     gaugePrimaryColor="rgb(124, 58, 237)"
                                     gaugeSecondaryColor="rgba(124, 58, 237, 0.1)"
                                 />
-                                <span className="text-[10px] font-extrabold text-rn-text-muted uppercase tracking-widest mt-2">Agents Completed</span>
-                                <span className="text-[9px] font-bold text-rn-text-muted/70 uppercase tracking-wider mt-0.5">Not Reliability Score</span>
+                                <span className="text-[10px] font-extrabold text-rn-text-muted uppercase tracking-widest mt-2">Test Progress</span>
                             </motion.div>
 
                             <motion.div
@@ -571,55 +571,6 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                 </div>
                             </motion.div>
                         </div>
-
-                        {/* Live Screenshot Evidence Strip */}
-                        {screenshots.length > 0 && sessionId && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.2 }}
-                                className="bg-white/60 backdrop-blur-xl rounded-2xl border border-white/60 p-4 shadow-sm"
-                            >
-                                <div className="flex items-center gap-2 mb-3">
-                                    <Camera className="w-4 h-4 text-violet-500" />
-                                    <span className="text-[11px] font-black text-rn-dark uppercase tracking-wider">Live Evidence Captures ({screenshots.length})</span>
-                                    <span className="ml-auto text-[9px] font-bold text-rn-text-muted uppercase">Full gallery in QA Report</span>
-                                </div>
-                                <div className="flex gap-2 overflow-x-auto pb-1">
-                                    {screenshots.slice(-12).map((ss, idx) => {
-                                        const ssName = (ss as any).message || (ss as any).name || '';
-                                        const ssMeta = ss as any;
-                                        const hasErr = ssMeta?.hasError === true || /bug|error|fail|defect|mismatch/i.test(ssName);
-                                        return (
-                                            <div
-                                                key={idx}
-                                                className={`shrink-0 w-28 rounded-lg border overflow-hidden cursor-pointer hover:shadow-md transition-all ${hasErr ? 'border-red-300 bg-red-50' : 'border-gray-200 bg-gray-50'}`}
-                                                onClick={() => setActiveScreenshot({
-                                                    src: `/api/screenshot/${sessionId}/${ssName}`,
-                                                    caption: ((ssMeta?.caption || ssName.replace(/_/g, ' ')) as string).slice(0, 40),
-                                                    agent: ssMeta?.agentId || '',
-                                                })}
-                                            >
-                                                <div className="w-full h-16 bg-gray-200 flex items-center justify-center overflow-hidden">
-                                                    <img
-                                                        src={`/api/screenshot/${sessionId}/${ssName}`}
-                                                        alt={ssName}
-                                                        className="w-full h-full object-cover"
-                                                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                                    />
-                                                </div>
-                                                <div className="px-1.5 py-1">
-                                                    <p className="text-[8px] font-bold truncate text-gray-700">{((ssMeta?.caption || ssName) as string).replace(/_/g, ' ').slice(0, 20)}</p>
-                                                    <div className={`text-[7px] font-extrabold mt-0.5 ${hasErr ? 'text-red-600' : 'text-emerald-600'}`}>
-                                                        {hasErr ? '⚠ Error' : '✓ No Errors'}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </motion.div>
-                        )}
 
                         {events.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -1076,21 +1027,21 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                                             )}
 
                                                             {/* Screenshot Thumbnail (if attached to this bug) */}
-                                                            {issue.screenshot && sessionId && (
+                                                            {issue.screenshot && effectiveSessionId && (
                                                                 <div className="p-3 rounded-xl bg-white border border-gray-200">
                                                                     <p className="text-[10px] font-black text-gray-700 uppercase tracking-wider mb-2 flex items-center gap-1">
                                                                         <Camera className="w-3.5 h-3.5 text-violet-600" /> Evidence Capture
                                                                     </p>
                                                                     <div
                                                                         onClick={() => setActiveScreenshot({
-                                                                            src: `/api/screenshot/${sessionId}/${issue.screenshot}`,
+                                                                            src: `/api/screenshot/${effectiveSessionId}/${issue.screenshot}`,
                                                                             caption: issue.title || issue.type,
                                                                             agent: domain.label
                                                                         })}
                                                                         className="relative group cursor-pointer max-w-md rounded-xl overflow-hidden border border-gray-200 hover:border-rn-primary/40 transition-all shadow-sm"
                                                                     >
                                                                         <img
-                                                                            src={`/api/screenshot/${sessionId}/${issue.screenshot}`}
+                                                                            src={`/api/screenshot/${effectiveSessionId}/${issue.screenshot}`}
                                                                             alt={issue.title || 'Bug evidence'}
                                                                             className="w-full h-44 object-cover object-top group-hover:scale-105 transition-transform duration-300"
                                                                         />
@@ -1121,7 +1072,7 @@ export default function ReportView({ events, report, sessionId }: Props) {
                         </motion.div>
 
                         {/* Evidence Screenshots Section (All Agent Captures) */}
-                        {report.screenshots && report.screenshots.length > 0 && sessionId && (
+                        {report.screenshots && report.screenshots.length > 0 && effectiveSessionId && (
                             <motion.div
                                 initial={{ opacity: 0, y: 12 }}
                                 animate={{ opacity: 1, y: 0 }}
@@ -1181,14 +1132,14 @@ export default function ReportView({ events, report, sessionId }: Props) {
                                                 {/* Screenshot image */}
                                                 <div
                                                     onClick={() => setActiveScreenshot({
-                                                        src: `/api/screenshot/${sessionId}/${filename}`,
+                                                        src: `/api/screenshot/${effectiveSessionId}/${filename}`,
                                                         caption: pageUrl || caption,
                                                         agent: `Agent ${agentId}`
                                                     })}
                                                     className="relative overflow-hidden bg-gray-900 aspect-video cursor-pointer"
                                                 >
                                                     <img
-                                                        src={`/api/screenshot/${sessionId}/${filename}`}
+                                                        src={`/api/screenshot/${effectiveSessionId}/${filename}`}
                                                         alt={caption}
                                                         onError={(e) => {
                                                             e.currentTarget.style.display = 'none';

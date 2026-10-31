@@ -45,6 +45,12 @@ function getRiskColor(level: string) {
     }
 }
 
+function getReliabilityColor(score: number, totalIssues: number) {
+    if (totalIssues === 0 || score >= 90) return '#059669';
+    if (score >= 70) return '#d97706';
+    return '#dc2626';
+}
+
 export default function AgentsPanel({ agents, risk }: Props) {
     const agentA = agents['A'] || { id: 'A', status: 'idle', message: '' };
     const agentB = agents['B'] || { id: 'B', status: 'idle', message: '' };
@@ -56,23 +62,23 @@ export default function AgentsPanel({ agents, risk }: Props) {
     const doneWorkers = workers.filter(w => w.status === 'done' || w.status === 'issues').length;
     const totalIssues = Object.values(agents).reduce((sum, a) => sum + ((a as any).issuesFound || 0), 0);
     const hasStarted = agentA.status !== 'idle' && agentA.status !== 'sleeping';
-    // RiskEngine score is reliability (100=perfect, lower=worse). Invert for risk display.
-    const riskDisplay = risk.totalIssues > 0 ? (100 - risk.score) : 0;
+    // Display live reliability score
+    const reliabilityDisplay = risk.totalIssues > 0 ? risk.score : 100;
 
     return (
         <div className="h-full flex flex-col overflow-auto p-4">
 
-            {/* Top bar: Risk Meter + Stats — always visible */}
+            {/* Top bar: Reliability Meter + Stats — always visible */}
             <div className="flex items-center justify-center gap-4 mb-4 px-1">
                 <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex items-center gap-3 px-4 py-2.5 bg-white/50 backdrop-blur-lg rounded-xl border border-white/40 shadow-sm"
                 >
-                    <Shield className="w-5 h-5" style={{ color: getRiskColor(risk.level) }} />
+                    <Shield className="w-5 h-5" style={{ color: getReliabilityColor(reliabilityDisplay, risk.totalIssues) }} />
                     <div>
-                        <p className="text-lg font-black leading-none" style={{ color: getRiskColor(risk.level) }}>{riskDisplay}</p>
-                        <p className="text-[9px] text-rn-text-muted font-bold uppercase">Risk Score</p>
+                        <p className="text-lg font-black leading-none" style={{ color: getReliabilityColor(reliabilityDisplay, risk.totalIssues) }}>{reliabilityDisplay}</p>
+                        <p className="text-[9px] text-rn-text-muted font-bold uppercase">Reliability</p>
                     </div>
                 </motion.div>
 
