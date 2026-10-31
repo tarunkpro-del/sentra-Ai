@@ -255,16 +255,22 @@ export default function App() {
     }, [prdText, userInstructions]);
 
     const fetchReport = useCallback(async (sid: string) => {
-        try {
-            const res = await fetch(`/api/report/${sid}`);
-            const text = await res.text();
-            let data;
-            try { data = JSON.parse(text); } catch { return; }
-            if (data.report) {
-                setReport(data.report);
-                setTab('report'); // Auto-switch to report tab
-            }
-        } catch { }
+        // Retry up to 12 times with 2-second intervals (24 seconds total) to wait for report generation
+        for (let attempt = 0; attempt < 12; attempt++) {
+            try {
+                const res = await fetch(`/api/report/${sid}`);
+                const text = await res.text();
+                let data;
+                try { data = JSON.parse(text); } catch { return; }
+                if (data.report) {
+                    setReport(data.report);
+                    setTab('report'); // Auto-switch to report tab
+                    return;
+                }
+                // Report not ready yet — wait 2s before retry
+                if (attempt < 11) await new Promise(r => setTimeout(r, 2000));
+            } catch { }
+        }
     }, []);
 
     const handleReset = useCallback(() => {

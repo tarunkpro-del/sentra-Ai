@@ -55,7 +55,7 @@ export default function AnimatedCircularProgressBar({
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-2xl font-black text-rn-dark">{currentPercent}</span>
-                <span className="text-[9px] font-extrabold text-rn-text-muted uppercase tracking-widest">percent</span>
+                <span className="text-[9px] font-extrabold text-rn-text-muted uppercase tracking-widest">%</span>
             </div>
         </div>
     );
